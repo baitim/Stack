@@ -2,8 +2,6 @@
 
 void stack_ctor(STACK *stack)
 {
-    STACK_DUMP(stack);
-
     stack->size = 0;
     stack->capacity = 5;
     stack->data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el));
