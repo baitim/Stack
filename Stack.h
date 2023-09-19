@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Debug.h"
-
 typedef int type_el;
 
 struct STACK {
@@ -15,11 +13,19 @@ struct STACK {
     int capacity;
 };
 
-int stack_ctor(STACK *stack, int new_capacity);
+#include "Debug.h"
 
-int stack_dtor(STACK *stack);
+const double MULTIPLIER_CAPACITY = 2;
 
-void stack_push(STACK *stack);
+void stack_ctor(STACK *stack);
+
+void stack_dtor(STACK *stack);
+
+void stack_increase(STACK *stack);
+
+void stack_reduce(STACK *stack);
+
+void stack_push(STACK *stack, int value);
 
 int stack_pop(STACK *stack);
 

@@ -8,9 +8,9 @@
 
 #include "Stack.h"
 
-int stack_dump(STACK *stack);
+int stack_dump(STACK *stack, const char *file, const char *func, int line, const char *stk);
 
-//#define STACK_DUMP(stk) stack_dump(stk, __FILE__, __PRETTY_FUNCTION__, __LINE__, #stk) 
+#define STACK_DUMP(stk) stack_dump(stk, __FILE__, __PRETTY_FUNCTION__, __LINE__, #stk) 
 
 int stack_check_error(STACK *stack);
 

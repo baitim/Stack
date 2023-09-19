@@ -1,6 +1,6 @@
 #include "Debug.h"
 
-int stack_dump(STACK *stack)
+int stack_dump(STACK *stack, const char *file, const char *func, int line, const char *stk)
 {
     int error = stack_check_error(stack);
     return error;
