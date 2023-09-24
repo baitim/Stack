@@ -60,8 +60,7 @@ int stack_dump(Stack *stack, const char *file, const char *func, int line, const
 int stack_check_error(Stack *stack)
 {
     int error = ERROR_NO;
-    const int hash = calculate_hash(stack);
-
+    int hash = calculate_hash(stack);
     if (!stack)                                 error |= ERROR_STACK_EMPTY;
     if (!stack->data)                           error |= ERROR_STACK_DATA_EMPTY;
     if (stack->capacity < 0)                    error |= ERROR_STACK_CAPACITY;
@@ -109,9 +108,22 @@ int long long make_number_canary()
     return (rand() % 555 + 35 + abs(atoi("CHE") % 37)) * (rand() % 1000 + 35 + abs(atoi("ABOBA") % 555)) * (rand() % 10000 + 7777) * (rand() % 909 + 35 + abs(atoi("777")));
 }
 
-int calculate_hash(const Stack *stack)
+int calculate_hash(Stack *stack)
 {
-    int hash = 777 * (int)(stack->left_canary);
+    int hash = 777;
+    const int base = 31;
+    const int mod = 1e9 + 7;
+
+    for (int i = 0; i < (int)sizeof(stack); i++)
+        hash = ((hash * base) % mod + (*((char *)stack + i)) * base) % mod; 
+
+    for (int i = 0; i < stack->size; i++)
+        hash = ((hash * base) % mod + stack->data[i] * base) % mod;
 
     return hash;
+}
+
+void write_hash(Stack *stack) 
+{
+    stack->hash = calculate_hash(stack);
 }

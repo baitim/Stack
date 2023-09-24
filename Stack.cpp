@@ -21,7 +21,6 @@ void stack_ctor(Stack *stack)
     stack->capacity = DEFAULT_CAPACITY;
     stack->data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el));
     CHECK_ALLOC(stack->data);
-
     STACK_DUMP(stack);
 }
 
@@ -33,6 +32,9 @@ void stack_dtor(Stack *stack)
     stack->data = nullptr;
     stack->size = INT_POISON;
     stack->capacity = INT_POISON;
+    stack->left_canary = INT_POISON;
+    stack->right_canary = INT_POISON;
+    stack->hash = INT_POISON;
 }
 
 void stack_increase(Stack *stack)
@@ -42,7 +44,7 @@ void stack_increase(Stack *stack)
     stack->capacity = (int)(stack->capacity * MULTIPLIER_CAPACITY);
     stack->data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el));
     CHECK_ALLOC(stack->data);
-
+    write_hash(stack);
     STACK_DUMP(stack);
 }
 
@@ -54,6 +56,7 @@ void stack_reduce(Stack *stack)
     stack->data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el));
     CHECK_ALLOC(stack->data);
 
+    write_hash(stack);
     STACK_DUMP(stack);
 }
 
@@ -65,6 +68,8 @@ void stack_push(Stack *stack, int value)
         stack_increase(stack);
 
     stack->data[stack->size++] = value;
+
+    write_hash(stack);
 }
 
 type_el stack_pop(Stack *stack)
@@ -75,5 +80,6 @@ type_el stack_pop(Stack *stack)
         stack_reduce(stack);
 
     stack->data[stack->size--] = INT_POISON;
+    write_hash(stack);
     return stack->data[stack->size];
 }

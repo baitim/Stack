@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+const int INT_POISON = -1;
+
 #include "Stack.h"
 
 long long make_number_canary();
@@ -21,6 +23,8 @@ void check_alloc(void *pointer, const char *file, const char *func, int line, co
 
 void print_stack_pointers(const Stack *stack);
 
-int calculate_hash(const Stack *stack);
+int calculate_hash(Stack *stack);
+
+void write_hash(Stack *stack);
 
 #endif // DEBUG_H

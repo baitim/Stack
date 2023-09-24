@@ -5,8 +5,6 @@ typedef int type_el;
 
 #define type_el_print "%d"
 
-const int INT_POISON = -1;
-
 struct Stack {
     long long left_canary;
     type_el *data;
