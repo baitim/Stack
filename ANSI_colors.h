@@ -9,11 +9,11 @@
 #define ANSI_LIGHT_BLUE      "\033[94m"
 #define ANSI_LIGHT_CYAN      "\033[96m"
 
-#define print_yellow(s)     ANSI_YELLOW         #s ANSI_DEFAULT_COLOR
-#define print_lred(s)       ANSI_LIGHT_RED      #s ANSI_DEFAULT_COLOR
-#define print_lgreen(s)     ANSI_LIGHT_GREEN    #s ANSI_DEFAULT_COLOR
-#define print_lyellow(s)    ANSI_LIGHT_YELLOW   #s ANSI_DEFAULT_COLOR
+#define print_yellow(s)     ANSI_YELLOW         s ANSI_DEFAULT_COLOR
+#define print_lred(s)       ANSI_LIGHT_RED      s ANSI_DEFAULT_COLOR
+#define print_lgreen(s)     ANSI_LIGHT_GREEN    s ANSI_DEFAULT_COLOR
+#define print_lyellow(s)    ANSI_LIGHT_YELLOW   s ANSI_DEFAULT_COLOR
 #define print_lblue(s)      ANSI_LIGHT_BLUE     s ANSI_DEFAULT_COLOR
-#define print_lcyan(s)      ANSI_LIGHT_CYAN     #s ANSI_DEFAULT_COLOR
+#define print_lcyan(s)      ANSI_LIGHT_CYAN     s ANSI_DEFAULT_COLOR
 
 #endif // ANSI_COLORS_H

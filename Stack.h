@@ -5,21 +5,18 @@ typedef int type_el;
 
 #define type_el_print "%d"
 
+const int INT_POISON = -1;
+
 struct Stack {
+    long long left_canary;
     type_el *data;
     int size;
     int capacity;
+    int hash;
+    long long right_canary;
 };
 
 #include "Debug.h"
-
-const int DEFAULT_SIZE = 0;
-
-const int DEFAULT_CAPACITY = 5;
-
-const int INT_POISON = -1;
-
-const double MULTIPLIER_CAPACITY = 2;
 
 void stack_ctor(Stack *stack);
 

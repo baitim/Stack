@@ -2,12 +2,21 @@
 
 #include <stdlib.h>
 
+const int DEFAULT_SIZE = 0;
+
+const int DEFAULT_CAPACITY = 5;
+
+const double MULTIPLIER_CAPACITY = 2;
+
 static void stack_increase(Stack *stack);
 
 static void stack_reduce(Stack *stack);
 
 void stack_ctor(Stack *stack)
 {
+    stack->left_canary = DEFAULT_CANARY;
+    stack->right_canary = DEFAULT_CANARY;
+    stack->hash = calculate_hash(stack);
     stack->size = DEFAULT_SIZE;
     stack->capacity = DEFAULT_CAPACITY;
     stack->data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el));
