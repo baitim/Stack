@@ -1,45 +1,54 @@
 #include "Stack.h"
 
-void stack_ctor(STACK *stack)
+#include <stdlib.h>
+
+static void stack_increase(Stack *stack);
+
+static void stack_reduce(Stack *stack);
+
+void stack_ctor(Stack *stack)
 {
-    stack->size = 0;
-    stack->capacity = 5;
+    stack->size = DEFAULT_SIZE;
+    stack->capacity = DEFAULT_CAPACITY;
     stack->data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el));
+    CHECK_ALLOC(stack->data);
 
     STACK_DUMP(stack);
 }
 
-void stack_dtor(STACK *stack)
+void stack_dtor(Stack *stack)
 {
     STACK_DUMP(stack);
 
     free(stack->data);
     stack->data = nullptr;
-    stack->size = -1;
-    stack->capacity = -1;
+    stack->size = INT_POISON;
+    stack->capacity = INT_POISON;
 }
 
-void stack_increase(STACK *stack)
+void stack_increase(Stack *stack)
 {
     STACK_DUMP(stack);
 
     stack->capacity = (int)(stack->capacity * MULTIPLIER_CAPACITY);
     stack->data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el));
+    CHECK_ALLOC(stack->data);
 
     STACK_DUMP(stack);
 }
 
-void stack_reduce(STACK *stack)
+void stack_reduce(Stack *stack)
 {
     STACK_DUMP(stack);
 
     stack->capacity = (int)(stack->capacity / MULTIPLIER_CAPACITY);
     stack->data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el));
+    CHECK_ALLOC(stack->data);
 
     STACK_DUMP(stack);
 }
 
-void stack_push(STACK *stack, int value)
+void stack_push(Stack *stack, int value)
 {
     STACK_DUMP(stack);
 
@@ -49,13 +58,13 @@ void stack_push(STACK *stack, int value)
     stack->data[stack->size++] = value;
 }
 
-int stack_pop(STACK *stack)
+type_el stack_pop(Stack *stack)
 {
     STACK_DUMP(stack);
 
     if (stack->size < stack->capacity / (MULTIPLIER_CAPACITY + 1))
-        stack_increase(stack);
+        stack_reduce(stack);
 
-    stack->data[stack->size--] = -1;
+    stack->data[stack->size--] = INT_POISON;
     return stack->data[stack->size];
 }

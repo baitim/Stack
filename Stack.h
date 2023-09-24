@@ -1,13 +1,11 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 typedef int type_el;
 
-struct STACK {
+#define type_el_print "%d"
+
+struct Stack {
     type_el *data;
     int size;
     int capacity;
@@ -15,18 +13,20 @@ struct STACK {
 
 #include "Debug.h"
 
+const int DEFAULT_SIZE = 0;
+
+const int DEFAULT_CAPACITY = 5;
+
+const int INT_POISON = -1;
+
 const double MULTIPLIER_CAPACITY = 2;
 
-void stack_ctor(STACK *stack);
+void stack_ctor(Stack *stack);
 
-void stack_dtor(STACK *stack);
+void stack_dtor(Stack *stack);
 
-void stack_increase(STACK *stack);
+void stack_push(Stack *stack, int value);
 
-void stack_reduce(STACK *stack);
-
-void stack_push(STACK *stack, int value);
-
-int stack_pop(STACK *stack);
+type_el stack_pop(Stack *stack);
 
 #endif // STACK_H
