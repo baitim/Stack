@@ -11,9 +11,11 @@ enum Errors {
     ERROR_STACK_CAPACITY =              4,
     ERROR_STACK_SIZE =                  8,
     ERROR_STACK_CAPACITY_LESS_SIZE =    16,
-    ERROR_LEFT_CANARY =                 32,
-    ERROR_RIGHT_CANARY =                64,
-    ERROR_HASH =                        128
+    ERROR_LEFT_CANARY_STRUCT =          32,
+    ERROR_RIGHT_CANARY_STRUCT =         64,
+    ERROR_HASH =                        128,
+    ERROR_LEFT_CANARY_DATA =            256,
+    ERROR_RIGHT_CANARY_DATA =           512
 };
 
 struct ProcessErrors {
@@ -28,9 +30,11 @@ const ProcessErrors errors[] = {
     {ERROR_STACK_CAPACITY,              "stack->capacity < 0"},
     {ERROR_STACK_SIZE,                  "stack->size < 0"},
     {ERROR_STACK_CAPACITY_LESS_SIZE,    "stack->capacity < stack->size"},
-    {ERROR_LEFT_CANARY,                 "stack->left_canary was changed"},
-    {ERROR_RIGHT_CANARY,                "stack->right_canary was changed"},
-    {ERROR_HASH,                        "stack->hash was changed"}
+    {ERROR_LEFT_CANARY_STRUCT,          "stack->left_canary_struct was changed"},
+    {ERROR_RIGHT_CANARY_STRUCT,         "stack->right_canary_struct was changed"},
+    {ERROR_HASH,                        "stack->hash was changed"},
+    {ERROR_LEFT_CANARY_DATA,            "stack->left_canary_data was changed"},
+    {ERROR_RIGHT_CANARY_DATA,           "stack->right_canary_data was changed"}
 };
 const int COUNT_ERRORS = sizeof(errors) / sizeof(ProcessErrors);
 
@@ -61,14 +65,17 @@ int stack_check_error(Stack *stack)
 {
     int error = ERROR_NO;
     int hash = calculate_hash(stack);
-    if (!stack)                                 error |= ERROR_STACK_EMPTY;
-    if (!stack->data)                           error |= ERROR_STACK_DATA_EMPTY;
-    if (stack->capacity < 0)                    error |= ERROR_STACK_CAPACITY;
-    if (stack->size < 0)                        error |= ERROR_STACK_SIZE;
-    if (stack->capacity < stack->size)          error |= ERROR_STACK_CAPACITY_LESS_SIZE;
-    if (stack->left_canary != DEFAULT_CANARY)   error |= ERROR_LEFT_CANARY;
-    if (stack->right_canary != DEFAULT_CANARY)  error |= ERROR_RIGHT_CANARY;
-    if (stack->hash != hash)                    error |= ERROR_HASH;
+    int move_to_right_canary = stack->capacity * (int)sizeof(type_el) + (int)sizeof(long long);
+    if (!stack)                                                                 error |= ERROR_STACK_EMPTY;
+    if (!stack->data)                                                           error |= ERROR_STACK_DATA_EMPTY;
+    if (stack->capacity < 0)                                                    error |= ERROR_STACK_CAPACITY;
+    if (stack->size < 0)                                                        error |= ERROR_STACK_SIZE;
+    if (stack->capacity < stack->size)                                          error |= ERROR_STACK_CAPACITY_LESS_SIZE;
+    if (stack->left_canary_struct != DEFAULT_CANARY)                            error |= ERROR_LEFT_CANARY_STRUCT;
+    if (stack->right_canary_struct != DEFAULT_CANARY)                           error |= ERROR_RIGHT_CANARY_STRUCT;
+    if (stack->hash != hash)                                                    error |= ERROR_HASH;
+    if (*((long long *)stack->data) != DEFAULT_CANARY)                          error |= ERROR_LEFT_CANARY_DATA;
+    if (*((long long *)stack->data + move_to_right_canary) != DEFAULT_CANARY)   error |= ERROR_RIGHT_CANARY_DATA;
     return error; 
 }
 
@@ -86,12 +93,13 @@ void check_alloc(void *pointer, const char *file, const char *func, int line, co
 
 void print_stack_pointers(const Stack *stack)
 {
-    printf("left_can =  %p\n",   &stack->left_canary);
+    printf("left_can =  %p\n",   &stack->left_canary_struct);
     printf("data =      %p\n",   &stack->data);
     printf("size =      %p\n",   &stack->size);
     printf("capacity =  %p\n",   &stack->capacity);
     printf("hash =      %p\n",   &stack->hash);
-    printf("right_can = %p\n",   &stack->right_canary);
+    printf("hash =      %p\n",   &stack->hash);
+    printf("right_can = %p\n",   &stack->right_canary_struct);
 }
 
 int powf(int x, int st)

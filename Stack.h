@@ -6,12 +6,12 @@ typedef int type_el;
 #define type_el_print "%d"
 
 struct Stack {
-    long long left_canary;
+    long long left_canary_struct;
     type_el *data;
     int size;
     int capacity;
     int hash;
-    long long right_canary;
+    long long right_canary_struct;
 };
 
 #include "Debug.h"
