@@ -6,16 +6,16 @@
 
 enum Errors {
     ERROR_NO =                          0,
-    ERROR_STACK_EMPTY =                 1,
-    ERROR_STACK_DATA_EMPTY =            2,
-    ERROR_STACK_CAPACITY =              4,
-    ERROR_STACK_SIZE =                  8,
-    ERROR_STACK_CAPACITY_LESS_SIZE =    16,
-    ERROR_LEFT_CANARY_STRUCT =          32,
-    ERROR_RIGHT_CANARY_STRUCT =         64,
-    ERROR_HASH =                        128,
-    ERROR_LEFT_CANARY_DATA =            256,
-    ERROR_RIGHT_CANARY_DATA =           512
+    ERROR_STACK_EMPTY =                 1 << 0,
+    ERROR_STACK_DATA_EMPTY =            1 << 1,
+    ERROR_STACK_CAPACITY =              1 << 2,
+    ERROR_STACK_SIZE =                  1 << 3,
+    ERROR_STACK_CAPACITY_LESS_SIZE =    1 << 4,
+    ERROR_LEFT_CANARY_STRUCT =          1 << 5,
+    ERROR_RIGHT_CANARY_STRUCT =         1 << 6,
+    ERROR_HASH =                        1 << 7,
+    ERROR_LEFT_CANARY_DATA =            1 << 8,
+    ERROR_RIGHT_CANARY_DATA =           1 << 9
 };
 
 struct ProcessErrors {
@@ -44,7 +44,9 @@ static void print_error(int error, const char *s);
 
 static int powf(int x, int st);
 
-int stack_dump(Stack *stack, const char *file, const char *func, int line, const char *stk)
+static int calculate_hash(void *data, int size);
+
+int stack_dump_(Stack *stack, const char *file, const char *func, int line, const char *stk)
 {
     int type_error = stack_check_error(stack);
 
@@ -64,8 +66,7 @@ int stack_dump(Stack *stack, const char *file, const char *func, int line, const
 int stack_check_error(Stack *stack)
 {
     int error = ERROR_NO;
-    int hash = calculate_hash(stack);
-    int move_to_right_canary = stack->capacity * (int)sizeof(type_el) + (int)sizeof(long long);
+    int hash = get_data_hash(stack);
     if (!stack)                                                                 error |= ERROR_STACK_EMPTY;
     if (!stack->data)                                                           error |= ERROR_STACK_DATA_EMPTY;
     if (stack->capacity < 0)                                                    error |= ERROR_STACK_CAPACITY;
@@ -75,7 +76,7 @@ int stack_check_error(Stack *stack)
     if (stack->right_canary_struct != DEFAULT_CANARY)                           error |= ERROR_RIGHT_CANARY_STRUCT;
     if (stack->hash != hash)                                                    error |= ERROR_HASH;
     if (*((long long *)stack->data) != DEFAULT_CANARY)                          error |= ERROR_LEFT_CANARY_DATA;
-    if (*((long long *)stack->data + move_to_right_canary) != DEFAULT_CANARY)   error |= ERROR_RIGHT_CANARY_DATA;
+    if (*((long long *)stack->data + get_right_canary_ptr(stack)) != DEFAULT_CANARY)   error |= ERROR_RIGHT_CANARY_DATA;
     return error; 
 }
 
@@ -84,11 +85,12 @@ void print_error(int error, const char *s)
     fprintf(stderr, print_lred("ERROR: %d: %s\n"), error, s);
 }
 
-void check_alloc(void *pointer, const char *file, const char *func, int line, const char *ptr)
+int check_alloc_(void *pointer, const char *file, const char *func, int line, const char *ptr)
 {
-    if (pointer) return;
+    if (pointer) return 0;
     fprintf(stderr, print_lred("ERROR: in pointer = %p, called from FILE = %s, FUNCTION = %s, LINE = %d, with %s\n"), 
                                pointer, file, func, line, ptr);
+    return 1;
 }
 
 void print_stack_pointers(const Stack *stack)
@@ -116,22 +118,24 @@ int long long make_number_canary()
     return (rand() % 555 + 35 + abs(atoi("CHE") % 37)) * (rand() % 1000 + 35 + abs(atoi("ABOBA") % 555)) * (rand() % 10000 + 7777) * (rand() % 909 + 35 + abs(atoi("777")));
 }
 
-int calculate_hash(Stack *stack)
+int get_data_hash(Stack *stack)
+{
+    return calculate_hash(stack, sizeof(stack)) + calculate_hash(stack->data, stack->size);
+}
+
+int calculate_hash(void *data, int size)
 {
     int hash = 777;
     const int base = 31;
     const int mod = 1e9 + 7;
 
-    for (int i = 0; i < (int)sizeof(stack); i++)
-        hash = ((hash * base) % mod + (*((char *)stack + i)) * base) % mod; 
-
-    for (int i = 0; i < stack->size; i++)
-        hash = ((hash * base) % mod + stack->data[i] * base) % mod;
+    for (int i = 0; i < size; i++)
+        hash = ((hash * base) % mod + (*((char *)data + i)) * base) % mod;
 
     return hash;
 }
 
 void write_hash(Stack *stack) 
 {
-    stack->hash = calculate_hash(stack);
+    stack->hash = get_data_hash(stack);
 }

@@ -1,9 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
 
-typedef int type_el;
-
-#define type_el_print "%d"
+#include "Config.h"
 
 struct Stack {
     long long left_canary_struct;
@@ -20,8 +18,10 @@ void stack_ctor(Stack *stack);
 
 void stack_dtor(Stack *stack);
 
-void stack_push(Stack *stack, int value);
+void stack_push(Stack *stack, type_el value);
 
 type_el stack_pop(Stack *stack);
+
+int get_right_canary_ptr(const Stack *stack);
 
 #endif // STACK_H

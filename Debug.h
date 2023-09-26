@@ -13,17 +13,17 @@ long long make_number_canary();
 
 const long long DEFAULT_CANARY = make_number_canary();
 
-int stack_dump(Stack *stack, const char *file, const char *func, int line, const char *stk);
+#define stack_dump(stk) stack_dump_(stk, __FILE__, __PRETTY_FUNCTION__, __LINE__, #stk) 
 
-#define STACK_DUMP(stk) stack_dump(stk, __FILE__, __PRETTY_FUNCTION__, __LINE__, #stk) 
+int stack_dump_(Stack *stack, const char *file, const char *func, int line, const char *stk);
 
-void check_alloc(void *pointer, const char *file, const char *func, int line, const char *ptr);
+#define check_alloc(pointer) check_alloc_(pointer, __FILE__, __PRETTY_FUNCTION__, __LINE__, #pointer) 
 
-#define CHECK_ALLOC(pointer) check_alloc(pointer, __FILE__, __PRETTY_FUNCTION__, __LINE__, #pointer) 
+int check_alloc_(void *pointer, const char *file, const char *func, int line, const char *ptr);
 
 void print_stack_pointers(const Stack *stack);
 
-int calculate_hash(Stack *stack);
+int get_data_hash(Stack *stack);
 
 void write_hash(Stack *stack);
 
