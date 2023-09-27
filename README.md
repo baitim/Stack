@@ -4,6 +4,8 @@
 
  Implementation of stack.
 
+ <p align="center"><img src="https://github.com/baitim/Stack/blob/main/images/shalby.gif" width="50%"></p>
+
 ## How to use
 
 1. Clone <br>
