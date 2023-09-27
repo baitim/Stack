@@ -33,8 +33,6 @@ void stack_ctor(Stack *stack)
 
 void stack_dtor(Stack *stack)
 {
-    stack_dump(stack);
-
     free(stack->data);
     stack->data = nullptr;
     stack->size = INT_POISON;
@@ -46,8 +44,6 @@ void stack_dtor(Stack *stack)
 
 void stack_increase(Stack *stack)
 {
-    stack_dump(stack);
-
     *((long long *)stack->data + get_right_canary_ptr(stack)) = INT_POISON;
     stack->capacity = (int)(stack->capacity * MULTIPLIER_CAPACITY);
     stack->data = (type_el *)super_realloc(stack->data, stack->capacity * sizeof(type_el) + sizeof(long long) * 2);
