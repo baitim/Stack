@@ -66,17 +66,17 @@ int stack_dump_(Stack *stack, const char *file, const char *func, int line, cons
 int stack_check_error(Stack *stack)
 {
     int error = ERROR_NO;
+    if (!stack)                                                                return error |= ERROR_STACK_EMPTY;
+    if (!stack->data)                                                          return error |= ERROR_STACK_DATA_EMPTY;
+    if (stack->capacity < 0)                                                   return error |= ERROR_STACK_CAPACITY;
+    if (stack->size < 0)                                                       return error |= ERROR_STACK_SIZE;
+    if (stack->capacity < stack->size)                                         return error |= ERROR_STACK_CAPACITY_LESS_SIZE;
+    if (stack->left_canary_struct != DEFAULT_CANARY)                           return error |= ERROR_LEFT_CANARY_STRUCT;
+    if (stack->right_canary_struct != DEFAULT_CANARY)                          return error |= ERROR_RIGHT_CANARY_STRUCT;
     int hash = get_data_hash(stack);
-    if (!stack)                                                                 error |= ERROR_STACK_EMPTY;
-    if (!stack->data)                                                           error |= ERROR_STACK_DATA_EMPTY;
-    if (stack->capacity < 0)                                                    error |= ERROR_STACK_CAPACITY;
-    if (stack->size < 0)                                                        error |= ERROR_STACK_SIZE;
-    if (stack->capacity < stack->size)                                          error |= ERROR_STACK_CAPACITY_LESS_SIZE;
-    if (stack->left_canary_struct != DEFAULT_CANARY)                            error |= ERROR_LEFT_CANARY_STRUCT;
-    if (stack->right_canary_struct != DEFAULT_CANARY)                           error |= ERROR_RIGHT_CANARY_STRUCT;
-    if (stack->hash != hash)                                                    error |= ERROR_HASH;
-    if (*((long long *)stack->data) != DEFAULT_CANARY)                          error |= ERROR_LEFT_CANARY_DATA;
-    if (*((long long *)stack->data + get_right_canary_ptr(stack)) != DEFAULT_CANARY)   error |= ERROR_RIGHT_CANARY_DATA;
+    if (stack->hash != hash)                                                   return error |= ERROR_HASH;
+    if (*((long long *)stack->data) != DEFAULT_CANARY)                          return error |= ERROR_LEFT_CANARY_DATA;
+    if (*((long long *)stack->data + get_right_canary_ptr(stack)) != DEFAULT_CANARY)  return error |= ERROR_RIGHT_CANARY_DATA;
     return error; 
 }
 
