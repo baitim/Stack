@@ -120,7 +120,9 @@ int long long make_number_canary()
 
 int get_data_hash(Stack *stack)
 {
-    return calculate_hash(stack, sizeof(Stack)) + calculate_hash(stack->data, sizeof(type_el) * stack->size);
+    int size_struct = sizeof(long long) + sizeof(type_el *) + sizeof(int) * 2;
+    return calculate_hash(stack, size_struct) + 
+           calculate_hash(stack->data, sizeof(type_el) * stack->size);
 }
 
 int calculate_hash(void *data, int size)
