@@ -21,13 +21,13 @@ void stack_ctor(Stack *stack)
 {
     stack->left_canary_struct = DEFAULT_CANARY;
     stack->right_canary_struct = DEFAULT_CANARY;
-    stack->hash = get_data_hash(stack);
     stack->size = DEFAULT_SIZE;
     stack->capacity = DEFAULT_CAPACITY;
     stack->data = (type_el *)recalloc(stack->data, stack->capacity * sizeof(type_el) + sizeof(long long) * 2);
     check_alloc(stack->data);
     *((long long *)stack->data) = DEFAULT_CANARY;
     *((long long *)stack->data + get_right_canary_ptr(stack)) = DEFAULT_CANARY;
+    stack->hash = get_data_hash(stack);
     stack_dump(stack);
 }
 
