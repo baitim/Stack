@@ -52,7 +52,7 @@ Errors stack_dump_(Stack *stack, const char *file, const char *func, int line, c
     }
     if (stack && stack->data) {
         for (int i = 0; i < stack->size; i++)
-            printf(print_lcyan("i = %d el = " type_el_print "\n"), i, stack->data[i]);
+            printf(print_lcyan("i = %d el = " type_el_print "\n"), i, el_print(stack->data[i]));
     }
     return type_error;
 }
@@ -69,7 +69,7 @@ static int stack_check_error(Stack *stack)
     if (stack->right_canary_struct != DEFAULT_CANARY)  return error |= ERROR_RIGHT_CANARY_STRUCT;
     int hash = get_stack_hash(stack);
     if (stack->hash != hash)                           return error |= ERROR_HASH;
-    if (*((long long *)stack->data + get_left_canary_index())       != DEFAULT_CANARY)  return error |= ERROR_LEFT_CANARY_DATA;
+    if (*((long long *)stack->data + get_left_canary_index()) != DEFAULT_CANARY)  return error |= ERROR_LEFT_CANARY_DATA;
     if (*((long long *)stack->data + get_right_canary_index(stack)) != DEFAULT_CANARY)  return error |= ERROR_RIGHT_CANARY_DATA;
     return error; 
 }
@@ -119,7 +119,7 @@ int get_stack_hash(Stack *stack)
 {
     int size_struct = sizeof(long long) + sizeof(type_el *) + sizeof(int) * 2;
     return calculate_hash(stack, size_struct) + 
-           calculate_hash(stack->data, sizeof(long long) * 2 + sizeof(type_el) * stack->capacity);
+           calculate_hash(stack->data, (int)sizeof(long long) * 2 + (int)sizeof(type_el) * stack->capacity);
 }
 
 static int calculate_hash(void *data, int size)

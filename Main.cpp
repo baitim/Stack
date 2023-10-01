@@ -34,6 +34,12 @@ int main()
     printf(print_lcyan(type_el_print "\n"), el_print(value));
     if (stack_pop(&stack, &value)) return 0;
     printf(print_lcyan(type_el_print "\n"), el_print(value));
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
 
 	stack_dtor(&stack);
 
