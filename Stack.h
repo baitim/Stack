@@ -14,14 +14,16 @@ struct Stack {
 
 #include "Debug.h"
 
-void stack_ctor(Stack *stack);
+Errors stack_ctor(Stack *stack);
 
-void stack_dtor(Stack *stack);
+Errors stack_dtor(Stack *stack);
 
-void stack_push(Stack *stack, type_el value);
+Errors stack_push(Stack *stack, type_el value);
 
-type_el stack_pop(Stack *stack);
+Errors stack_pop(Stack *stack, type_el *value);
 
-int get_right_canary_ptr(const Stack *stack);
+int get_left_canary_index();
+
+int get_right_canary_index(const Stack *stack);
 
 #endif // STACK_H

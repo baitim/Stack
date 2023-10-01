@@ -9,108 +9,102 @@ const int DEFAULT_CAPACITY = 5;
 
 const double MULTIPLIER_CAPACITY = 2;
 
-static void stack_increase(Stack *stack);
+enum RESIZE_MULTIPLIER {
+    MULTIPLIER_REDUCE   = -1,
+    MULTIPLIER_EQUAL    =  0,
+    MULTIPLIER_INCREASE =  1
+};
 
-static void stack_reduce(Stack *stack);
+static Errors stack_resize(Stack *stack, int multiplier);
 
-static void *recalloc(void *data, int size);
-
-static void *super_realloc(void *data, int size);
-
-void stack_ctor(Stack *stack)
+Errors stack_ctor(Stack *stack)
 {
     stack->left_canary_struct = DEFAULT_CANARY;
     stack->right_canary_struct = DEFAULT_CANARY;
     stack->size = DEFAULT_SIZE;
     stack->capacity = DEFAULT_CAPACITY;
-    stack->data = (type_el *)recalloc(stack->data, stack->capacity * sizeof(type_el) + sizeof(long long) * 2);
-    check_alloc(stack->data);
+    type_el *new_data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el) + sizeof(long long) * 2);
+    if (!new_data) return ERROR_STACK_DATA_EMPTY;
+    new_data = (type_el *)memset(new_data, POISON_BYTE, stack->size);
+    if (!new_data) return ERROR_STACK_DATA_EMPTY;
+    else stack->data = new_data;
+
     *((long long *)stack->data) = DEFAULT_CANARY;
-    *((long long *)stack->data + get_right_canary_ptr(stack)) = DEFAULT_CANARY;
-    stack->hash = get_data_hash(stack);
-    stack_dump(stack);
+    stack->data = (type_el *)((char *)stack->data + sizeof(long long));
+    *((long long *)stack->data + get_right_canary_index(stack)) = DEFAULT_CANARY;
+    stack->hash = get_stack_hash(stack);
+    return stack_dump(stack); 
 }
 
-void stack_dtor(Stack *stack)
+Errors stack_dtor(Stack *stack)
 {
-    stack_dump(stack);
+    Errors error = stack_dump(stack);
+    if (error) return error;
 
+    stack->data = (type_el *)((char *)stack->data - sizeof(long long));
     free(stack->data);
     stack->data = nullptr;
-    stack->size = INT_POISON;
-    stack->capacity = INT_POISON;
-    stack->left_canary_struct = INT_POISON;
-    stack->right_canary_struct = INT_POISON;
-    stack->hash = INT_POISON;
+    stack->size = POISON_BYTE;
+    stack->capacity = POISON_BYTE;
+    stack->left_canary_struct = POISON_BYTE;
+    stack->right_canary_struct = POISON_BYTE;
+    stack->hash = POISON_BYTE;
+    return error;
 }
 
-void stack_increase(Stack *stack)
+static Errors stack_resize(Stack *stack, int multiplier)
 {
-    stack_dump(stack);
-
-    *((long long *)stack->data + get_right_canary_ptr(stack)) = INT_POISON;
-    stack->capacity = (int)(stack->capacity * MULTIPLIER_CAPACITY);
-    stack->data = (type_el *)super_realloc(stack->data, stack->capacity * sizeof(type_el) + sizeof(long long) * 2);
-    check_alloc(stack->data);
-    *((long long *)stack->data + get_right_canary_ptr(stack)) = DEFAULT_CANARY;
-    write_hash(stack);
-    stack_dump(stack);
+    Errors error = stack_dump(stack);
+    if (error) return error;
+    if (multiplier == MULTIPLIER_EQUAL)     return error;
+    if (multiplier == MULTIPLIER_REDUCE)    stack->capacity = (int)(stack->capacity / MULTIPLIER_CAPACITY);
+    if (multiplier == MULTIPLIER_INCREASE)  stack->capacity = (int)(stack->capacity * MULTIPLIER_CAPACITY);
+    *((long long *)stack->data + get_left_canary_index()) = POISON_BYTE;
+    *((long long *)stack->data + get_right_canary_index(stack)) = POISON_BYTE;
+    type_el *new_data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el) + sizeof(long long) * 2);
+    if (!new_data) return ERROR_STACK_DATA_EMPTY;
+    else stack->data = new_data;
+    *((long long *)stack->data + get_left_canary_index()) = DEFAULT_CANARY;
+    *((long long *)stack->data + get_right_canary_index(stack)) = DEFAULT_CANARY;
+    get_hash(stack);
+    return stack_dump(stack);
 }
 
-void stack_reduce(Stack *stack)
+Errors stack_push(Stack *stack, type_el value)
 {
-    stack_dump(stack);
-
-    *((long long *)stack->data + get_right_canary_ptr(stack)) = INT_POISON;
-    stack->capacity = (int)(stack->capacity / MULTIPLIER_CAPACITY);
-    stack->data = (type_el *)super_realloc(stack->data, stack->capacity * sizeof(type_el) + sizeof(long long) * 2);
-    check_alloc(stack->data);
-    *((long long *)stack->data + get_right_canary_ptr(stack)) = DEFAULT_CANARY;
-    write_hash(stack);
-    stack_dump(stack);
-}
-
-void stack_push(Stack *stack, type_el value)
-{
-    stack_dump(stack);
+    Errors error = stack_dump(stack);
+    if (error) return error;
 
     if (stack->size == stack->capacity)
-        stack_increase(stack);
+        error = stack_resize(stack, MULTIPLIER_INCREASE);
 
-    stack->data[sizeof(long long) / sizeof(type_el) + stack->size++] = value;
+    if (error) return error;
 
-    write_hash(stack);
+    stack->data[stack->size++] = value;
+    get_hash(stack);
+    return stack_dump(stack);
 }
 
-type_el stack_pop(Stack *stack)
+Errors stack_pop(Stack *stack, type_el *value)
 {
-    stack_dump(stack);
+    Errors error = stack_dump(stack);
+    if (error) return error;
 
     if (stack->size < stack->capacity / (MULTIPLIER_CAPACITY + 1))
-        stack_reduce(stack);
+        stack_resize(stack, MULTIPLIER_REDUCE);
 
-    stack->data[sizeof(long long) / sizeof(type_el) + stack->size--] = INT_POISON;
-    write_hash(stack);
-    return stack->data[sizeof(long long) / sizeof(type_el) + stack->size];
+    stack->data[stack->size--] = POISON_EL;
+    get_hash(stack);
+    *value = stack->data[stack->size];
+    return stack_dump(stack);
 }
 
-int get_right_canary_ptr(const Stack *stack)
+int get_left_canary_index()
 {
-    return stack->capacity * (int)sizeof(type_el) + (int)sizeof(long long);
+    return -1;
 }
 
-void *recalloc(void *data, int size)
+int get_right_canary_index(const Stack *stack)
 {
-    return memset(super_realloc(data, size), '\0', size);
-}
-
-void *super_realloc(void *data, int size)
-{
-    void *old_data = data;
-    void *new_data = realloc(old_data, size);
-    if (check_alloc(new_data)) {
-        free(data);
-        return nullptr;
-    }
-    return new_data;
+    return ((int)sizeof(type_el) * stack->capacity + (int)sizeof(long long) - 1) / (int)sizeof(long long);
 }

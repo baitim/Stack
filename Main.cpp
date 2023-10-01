@@ -10,22 +10,30 @@ int main()
 
     Stack stack = {};
 	stack_ctor(&stack);
+    
+    if (stack_push(&stack, {9, 1})) return 0;
+    if (stack_push(&stack, {8, 2})) return 0;
+    if (stack_push(&stack, {7, 3})) return 0;
+    if (stack_push(&stack, {6, 4})) return 0;
+    if (stack_push(&stack, {5, 5})) return 0;
+    if (stack_push(&stack, {4, 6})) return 0;
+    if (stack_push(&stack, {3, 7})) return 0;
+    if (stack_push(&stack, {2, 8})) return 0;
+    if (stack_push(&stack, {1, 9})) return 0;
 
-    stack_push(&stack, 1);
-    stack_push(&stack, 6);
-    stack_push(&stack, 7);
-    stack_push(&stack, 2);
-    stack_push(&stack, 3);
-    stack_push(&stack, 4);
-    stack_push(&stack, 5);
-
-	printf(type_el_print "\n", stack_pop(&stack));
-    printf(type_el_print "\n", stack_pop(&stack));
-    printf(type_el_print "\n", stack_pop(&stack));
-    printf(type_el_print "\n", stack_pop(&stack));
-    printf(type_el_print "\n", stack_pop(&stack));
-    printf(type_el_print "\n", stack_pop(&stack));
-    printf(type_el_print "\n", stack_pop(&stack));
+    type_el value = {};
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
+    if (stack_pop(&stack, &value)) return 0;
+    printf(print_lcyan(type_el_print "\n"), el_print(value));
 
 	stack_dtor(&stack);
 
