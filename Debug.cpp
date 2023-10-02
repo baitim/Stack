@@ -20,7 +20,8 @@ const ProcessErrors errors[] = {
     {ERROR_RIGHT_CANARY_STRUCT,         "stack->right_canary_struct was changed"},
     {ERROR_HASH,                        "stack->hash was changed"},
     {ERROR_LEFT_CANARY_DATA,            "stack->left_canary_data was changed"},
-    {ERROR_RIGHT_CANARY_DATA,           "stack->right_canary_data was changed"}
+    {ERROR_RIGHT_CANARY_DATA,           "stack->right_canary_data was changed"},
+    {ERROR_REALLOC_FAIL,                "realloc fail"}
 };
 const int COUNT_ERRORS = sizeof(errors) / sizeof(ProcessErrors);
 

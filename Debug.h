@@ -16,7 +16,8 @@ enum Errors {
     ERROR_RIGHT_CANARY_STRUCT =         1 << 6,
     ERROR_HASH =                        1 << 7,
     ERROR_LEFT_CANARY_DATA =            1 << 8,
-    ERROR_RIGHT_CANARY_DATA =           1 << 9
+    ERROR_RIGHT_CANARY_DATA =           1 << 9,
+    ERROR_REALLOC_FAIL =                1 << 10
 };
 
 #include "Stack.h"
