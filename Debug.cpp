@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "ANSI_colors.h"
+#include "Config.h"
 
 struct ProcessErrors {
     int error;
@@ -38,7 +39,7 @@ Errors stack_dump_(Stack *stack, const char *file, const char *func, int line, c
     Errors type_error = (Errors)stack_check_error(stack);
 
     if (type_error == ERROR_NO) {
-        fprintf(stderr, print_lgreen("stack_dump: OK\n"));
+        //fprintf(stderr, print_lgreen("stack_dump: OK\n"));
         return ERROR_NO;
     }
 
@@ -52,8 +53,10 @@ Errors stack_dump_(Stack *stack, const char *file, const char *func, int line, c
             print_error(type_error, errors[i].description);
     }
     if (stack && stack->data) {
-        for (int i = 0; i < stack->size; i++)
-            printf(print_lcyan("i = %d el = " type_el_print "\n"), i, el_print(stack->data[i]));
+        for (int i = 0; i <= stack->size; i++) {
+            printf(print_lcyan("i = %d "), i);
+            print_el(&stack->data[i]);
+        }
     }
     return type_error;
 }
@@ -68,9 +71,9 @@ static int stack_check_error(Stack *stack)
     if (stack->capacity < stack->size)                 return error |= ERROR_STACK_CAPACITY_LESS_SIZE;
     if (stack->left_canary_struct != DEFAULT_CANARY)   return error |= ERROR_LEFT_CANARY_STRUCT;
     if (stack->right_canary_struct != DEFAULT_CANARY)  return error |= ERROR_RIGHT_CANARY_STRUCT;
-    int hash = get_stack_hash(stack);
+    int hash = get_hash(stack);
     if (stack->hash != hash)                           return error |= ERROR_HASH;
-    if (*((long long *)stack->data + get_left_canary_index()) != DEFAULT_CANARY)  return error |= ERROR_LEFT_CANARY_DATA;
+    if (*((long long *)stack->data + get_left_canary_index(stack)) != DEFAULT_CANARY)  return error |= ERROR_LEFT_CANARY_DATA;
     if (*((long long *)stack->data + get_right_canary_index(stack)) != DEFAULT_CANARY)  return error |= ERROR_RIGHT_CANARY_DATA;
     return error; 
 }
@@ -78,16 +81,6 @@ static int stack_check_error(Stack *stack)
 static void print_error(int error, const char *s)
 {
     fprintf(stderr, print_lred("ERROR: %d: %s\n"), error, s);
-}
-
-#undef check_alloc
-
-int check_alloc_(void *pointer, const char *file, const char *func, int line, const char *ptr)
-{
-    if (pointer) return 0;
-    fprintf(stderr, print_lred("ERROR: in pointer = %p, called from FILE = %s, FUNCTION = %s, LINE = %d, with %s\n"), 
-                               pointer, file, func, line, ptr);
-    return 1;
 }
 
 void print_stack_pointers(const Stack *stack)
@@ -116,7 +109,7 @@ int long long make_number_canary()
     return (rand() % 555 + 35 + abs(atoi("CHE") % 37)) * (rand() % 1000 + 35 + abs(atoi("ABOBA") % 555)) * (rand() % 10000 + 7777) * (rand() % 909 + 35 + abs(atoi("777")));
 }
 
-int get_stack_hash(Stack *stack)
+int get_hash(Stack *stack)
 {
     int size_struct = sizeof(long long) + sizeof(type_el *) + sizeof(int) * 2;
     return calculate_hash(stack, size_struct) + 
@@ -133,9 +126,4 @@ static int calculate_hash(void *data, int size)
         hash = ((hash * base) % mod + (*((char *)data + i)) * base) % mod;
 
     return hash;
-}
-
-void get_hash(Stack *stack) 
-{
-    stack->hash = get_stack_hash(stack);
 }

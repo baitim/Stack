@@ -22,7 +22,7 @@ Errors stack_push(Stack *stack, type_el value);
 
 Errors stack_pop(Stack *stack, type_el *value);
 
-int get_left_canary_index();
+int get_left_canary_index(const Stack */*stack*/);
 
 int get_right_canary_index(const Stack *stack);
 

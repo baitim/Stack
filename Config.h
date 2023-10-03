@@ -1,18 +1,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-struct point {
-    int x;
-    int y;
-};
-
-typedef point type_el;
+typedef int type_el;
 
 const unsigned char POISON_BYTE = 0xbe;
-type_el make_poison_el();
-const type_el POISON_EL = (type_el){(int)POISON_BYTE, (int)POISON_BYTE};
+const type_el POISON_EL = POISON_BYTE;
 
-#define type_el_print "x = %d, y = %d"
-#define el_print(value) value.x, value.y
+void print_el(const type_el* elem);
 
 #endif // CONFIG_H
