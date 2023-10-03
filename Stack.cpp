@@ -64,7 +64,6 @@ static Errors stack_resize(Stack *stack, int multiplier)
     *((long long *)stack->data) = POISON_BYTE;
     *((long long *)stack->data + 1 + get_right_canary_index(stack)) = POISON_BYTE;
     type_el *new_data = (type_el *)realloc(stack->data, stack->capacity * sizeof(type_el) + sizeof(long long) * 2);
-    printf("cap = %d\tnew_data = %p\n", stack->capacity, new_data);
     if (!new_data)
         return ERROR_REALLOC_FAIL;
     else if(stack->data != new_data)
