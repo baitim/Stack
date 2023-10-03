@@ -86,7 +86,8 @@ Errors stack_push(Stack *stack, type_el value)
 
     if (error) return error;
 
-    stack->data[stack->size++] = value;
+    stack->data[stack->size] = value;
+    stack->size++;
     stack->hash = get_hash(stack);
     return stack_dump(stack);
 }
@@ -101,9 +102,10 @@ Errors stack_pop(Stack *stack, type_el *value)
 
     if (error) return error;
 
-    stack->data[--stack->size] = POISON_EL;
-    stack->hash = get_hash(stack);
+    stack->size--;
     *value = stack->data[stack->size];
+    stack->data[stack->size] = POISON_EL;
+    stack->hash = get_hash(stack);
     return stack_dump(stack);
 }
 
